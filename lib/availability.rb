@@ -3,69 +3,75 @@ puts "--------------------------"
 puts "Welcome to Instacart"
 puts "--------------------------"
 
-# 2. Define our store
+# 2. Adjust our store to show availability
 store = {
-  "kiwi" => 1.25 ,
-  "banana" => 0.5,
-  "mango" => 4,
-  "asparagus" => 9
-}
+            "kiwi" => { price: 1.25, availability: 5 },
+            "banana" => { price: 0.5, availability: 2 },
+            "mango" => { price: 4, availability: 7 },
+            "asparagus" => { price: 9, availability: 3 },
+        }
 
-
-#1. change our cart into a hash of items and quantity
 cart = {}
 
-# 4. List the available items with thei prices
-puts "In our store today:"
-#               key, value
-store.each do |item, price|
-  puts "#{item}: #{price}€"
-end
 
-puts "--------------------"
+puts "In our store today:"
+
+loop do
+    
+    store.each do |item, info|
+        puts "#{item}: #{info[:price]}€ (#{info[:availability]} available)"
+    end
+    puts "--------------------"
 
 
 # LOOP START
-loop do
 
     puts "Which item? (or 'quit' to checkout)"
     item = gets.chomp
     
 
     if store.key?(item)
-        # 2. ask how many items the user wants to add 
         puts "How many?"
-        # 3. save the answer
         quantity = gets.chomp.to_i 
-        # 4. adjust how we add the item and quantity to our cart 
-        cart[item] = quantity
-        puts"#{item} added to cart!"
-
+        
+        # 3. if quantity is <= availability, add that to cart
+        availability = store[item][:availability]
+        if quantity <= availability
+            cart.key?(item) ? cart[item] += quantity : cart[item] = quantity
+            puts "#{item} added to cart!"
+            puts ""
+            # 4. subtract the quantity purchased from the availability
+            store[item][:availability] -= quantity
+        else
+            # 5. if the quantity is greater than the availability, DONT add that item 
+            puts"Sorry, there are only #{availability} #{item} left!"
+            puts ""
+        end
 
     elsif item == "quit"
         break
     else
-
         puts "Sorry! #{item} is not in out store"
     end
     # LOOP END
 end
-# p cart
+p cart
 
-# 5. change the way we get the items 
+
 puts "You have #{cart.keys.join(', ')} in your cart!"
 puts ""
 puts "Thanks for shopping at tatchi's"
 puts ""
 
 
-# 6. adjust how we calculate the totals (thinking of quantity)
+# 6. adjust how we calculate the bill (thinking of quantity)
 total_price = 0
 
 puts "-------BILL---------"
 cart.each do |item, quantity|
-    puts "#{item}: #{quantity}"
-    total_price += store[item] * quantity
+    price = store[item][:price]
+    puts "#{item}: #{quantity} x #{price}€ = #{price * quantity}€"
+    total_price += price * quantity
 end
 
 
